@@ -16,8 +16,6 @@ protocol.registerSchemesAsPrivileged([
     privileges: {
       standard: true,
       secure: true,
-      supportFetchAPI: true,
-      corsEnabled: true
     }
   }
 ]);
@@ -34,12 +32,13 @@ app.whenReady().then(async () => {
   : path.join(__dirname, "public/js/preload.js");  
 
   const win = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1200,
+    height: 800,
     webPreferences: {
       preload: preloadPath,
       contextIsolation: true,
       nodeIntegration: false,
+      devTools: !app.isPackaged
     }
   });
   win.setMenuBarVisibility(false);
@@ -66,7 +65,7 @@ app.whenReady().then(async () => {
     await unloadModel();
     try {
       const promptPath = app.isPackaged
-        ? path.join(process.resourcesPath, 'helper/promptChat.txt')
+        ? path.join(process.resourcesPath, 'app.asar/dist/helper/promptChat.txt')
         : path.join(__dirname, 'public/helper/promptChat.txt');
       let prompt = await fs.readFile(promptPath, "utf-8");
 
@@ -120,16 +119,14 @@ app.whenReady().then(async () => {
   modelSlide = await llamaSlide.loadModel({
     modelPath: modelPath,
   });
-  const grammarSlide = await llamaSlide.getGrammarFor("json");
   
   const promptPath = app.isPackaged
-    ? path.join(process.resourcesPath, 'helper/promptSlide.txt')
+    ? path.join(process.resourcesPath, 'app.asar/dist/helper/promptSlide.txt')
     : path.join(__dirname, 'public/helper/promptSlide.txt');
   let prompt = await fs.readFile(promptPath, "utf-8");
   prompt = prompt.replace("**${language}**", language);
 
-  const contextSizes = [16384, 8192, 4096, 2048];
-  let contextCreated = false;
+  const contextSizes = [8192, 4096, 2048];
   for (const size of contextSizes) {
     try {
       const targetSize = Math.min(modelSlide.trainContextSize, size);
@@ -140,7 +137,6 @@ app.whenReady().then(async () => {
       });
       
       console.log(`Successfully created context with size: ${targetSize}`);
-      contextCreated = true;
       break;
     } catch (err) {
       console.error(`Failed to create context with size ${size}: ${err.message}`);
@@ -291,7 +287,7 @@ async function ocrHelperMacos(filepath) {
   const execFilePromise = require('util').promisify(execFile);
   
   const helperPath = app.isPackaged
-    ? path.join(process.resourcesPath, 'helper/macos/llmSlide-Helper-MacOS')
+    ? path.join(process.resourcesPath, 'app.asar/dist/helper/macos/llmSlide-Helper-MacOS')
     : path.join(__dirname, 'public/helper/macos/llmSlide-Helper-MacOS');
   
   try {
@@ -320,8 +316,8 @@ async function ocrHelperWindows(filepath) {
   }
 
   const helperPath = app.isPackaged
-    ? path.join(process.resourcesPath, 'helper/macos/llmSlide-Helper-Windows')
-    : path.join(__dirname, 'public/helper/macos/llmSlide-Helper-Windows');
+    ? path.join(process.resourcesPath, 'app.asar/dist/helper/windows/llmSlide-Helper-Windows')
+    : path.join(__dirname, 'public/helper/windows/llmSlide-Helper-Windows');
 
   return { status: "error", message: "Not implemented yet on Windows." };
 }
