@@ -1,5 +1,6 @@
 const { mode } = require('crypto-js');
 const { app, BrowserWindow, protocol, dialog, ipcMain, shell } = require('electron');
+const { spawn } = require('child_process');
 const fs = require('fs').promises;
 const path = require('path');
 const { json } = require('stream/consumers');
@@ -217,7 +218,11 @@ app.whenReady().then(async () => {
   });
 
   ipcMain.handle('open-folder', async (event, folderPath) => {
-    await shell.openPath(folderPath.replace('file://', ''));
+    if (process.platform === 'win32') {
+      spawn('explorer.exe', [folderPath.replace('file://', '')]);
+    }else{
+      shell.openPath(folderPath.replace('file://', ''));
+    }
   });
 
   ipcMain.handle('select-file', async () => {
@@ -272,6 +277,16 @@ async function unloadModel() {
 }
 
 async function ocrHelperMacos(filepath) {
+  if (filepath.toLowerCase().endsWith('.txt')) {
+    try {
+      const text = await fs.readFile(filepath, 'utf-8');
+      return { status: "success", message: { pdfText: text } };
+    } catch (error) {
+      console.error(`Failed to read text file: ${error.message}`);
+      return { status: "error", message: "error" };
+    } 
+  }
+
   const { execFile } = require('child_process');
   const execFilePromise = require('util').promisify(execFile);
   
@@ -294,6 +309,20 @@ async function ocrHelperMacos(filepath) {
 }
 
 async function ocrHelperWindows(filepath) {
+  if (filepath.toLowerCase().endsWith('.txt')) {
+    try {
+      const text = await fs.readFile(filepath, 'utf-8');
+      return { status: "success", message: { pdfText: text } };
+    } catch (error) {
+      console.error(`Failed to read text file: ${error.message}`);
+      return { status: "error", message: "error" };
+    }
+  }
+
+  const helperPath = app.isPackaged
+    ? path.join(process.resourcesPath, 'helper/macos/llmSlide-Helper-Windows')
+    : path.join(__dirname, 'public/helper/macos/llmSlide-Helper-Windows');
+
   return { status: "error", message: "Not implemented yet on Windows." };
 }
 

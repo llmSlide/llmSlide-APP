@@ -105,7 +105,7 @@ const handleFileSelect = async () => {
   try {
     const result = await window.electronAPI.selectFile()
     if (!result) return
-    const name = result.split('/').pop() || 'unknown'
+    const name = result.split(/[/\\\\]/).pop() || 'unknown'
     selectedFile.value = {
         name: name,
         path: result

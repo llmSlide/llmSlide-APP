@@ -133,7 +133,7 @@ async function showModelList() {
         modelOptions.value = modelList
           .map(m => m.trim())
           .filter(m => m.length > 0)
-          .map(m => ({ label: m.split('/').pop() || m, value: m }));
+          .map(m => ({ label: m.split(/[/\\\\]/).pop() || m, value: m }));
         console.log('Model options updated:', modelOptions.value)
       } else {
         console.log('No models found in the directory.')
