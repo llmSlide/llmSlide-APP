@@ -35,10 +35,10 @@ tsconfig.node.tsbuildinfo
 
 # helper files
 public/helper/macos/*
-!public/helper/macos/.gitkeep
+!public/helper/macos/PutHelperHere
 public/helper/windows/*
-!public/helper/windows/.gitkeep
+!public/helper/windows/PutHelperHere
 
 # models
 public/models/*
-!public/models/.gitkeep
+!public/models/PutModelHere
