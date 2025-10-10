@@ -276,8 +276,8 @@ async function ocrHelperMacos(filepath) {
   const execFilePromise = require('util').promisify(execFile);
   
   const helperPath = app.isPackaged
-    ? path.join(process.resourcesPath, 'helper/macos/llmSlide-OCR-Helper')
-    : path.join(__dirname, 'public/helper/macos/llmSlide-OCR-Helper');
+    ? path.join(process.resourcesPath, 'helper/macos/llmSlide-Helper-MacOS')
+    : path.join(__dirname, 'public/helper/macos/llmSlide-Helper-MacOS');
   
   try {
     const { stdout, stderr } = await execFilePromise(helperPath, [filepath]);
