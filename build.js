@@ -35,15 +35,15 @@ builder.build({
         },
         'files': [
             'dist/**/*',
-            '!dist/model/**/*',
+            '!dist/models/**/*',
             'main.js',
             '!**/.DS_Store',
             '!**/.*'
         ],
         'extraResources': [
             {
-                "from": "dist/model",
-                "to": "model"
+                "from": "dist/models",
+                "to": "models"
             }
         ],
         'extends': null,
