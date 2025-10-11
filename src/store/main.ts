@@ -37,6 +37,7 @@ export interface MainState {
   showNotesPanel: boolean
   showMarkupPanel: boolean
   showAIPPTDialog: boolean
+  globalConversation: Record<string, Array<{ role: string; text: string }>>
 }
 
 const nanoid = customAlphabet('0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz')
@@ -73,6 +74,7 @@ export const useMainStore = defineStore('main', {
     showNotesPanel: false, // 打开批注面板
     showMarkupPanel: false, // 打开类型标注面板
     showAIPPTDialog: false, // 打开AIPPT创建窗口
+    globalConversation: {} as Record<string, Array<{ role: string; text: string }>>, //Ai 對話紀錄
   }),
 
   getters: {
@@ -89,6 +91,11 @@ export const useMainStore = defineStore('main', {
       if (!currentSlide || !currentSlide.elements) return null
       return currentSlide.elements.find(element => state.handleElementId === element.id) || null
     },
+
+    getGlobalConversation(): Array<{ role: string; text: string }> {
+      return this.globalConversation.global || []
+    },
+    
   },
 
   actions: {
@@ -206,5 +213,10 @@ export const useMainStore = defineStore('main', {
     setAIPPTDialogState(show: boolean) {
       this.showAIPPTDialog = show
     },
+
+    setGlobalConversation(messages: Record<string, Array<{ role: string; text: string }>>) {
+      this.globalConversation = messages
+    },
+    
   },
 })
