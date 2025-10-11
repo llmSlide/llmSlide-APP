@@ -6,7 +6,8 @@
         :key="index"
         :class="['chat-bubble', msg.role]"
       >
-        {{ msg.text }}
+        <div v-if="msg.role === 'bot'" v-html="renderMarkdown(msg.text)"></div>
+        <div v-else>{{ msg.text }}</div>
       </div>
     </div>
 
@@ -22,19 +23,38 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, nextTick } from 'vue'
+import { ref, nextTick, watch, onMounted } from 'vue'
 import { useMainStore, useSlidesStore } from '@/store'
 import { storeToRefs } from 'pinia'
+import { marked } from 'marked'
 
+const mainStore = useMainStore()
 const slidesStore = useSlidesStore()
-const { handleElement, handleElementId } = storeToRefs(useMainStore())
+const { handleElementId } = storeToRefs(useMainStore())
 
-const messages = ref([
-  { role: '', text: '' }
-])
+const messages = ref<Array<{ role: string; text: string }>>([])
 const inputText = ref('')
 const isBotReplying = ref(false)
 const chatWindow = ref<HTMLElement | null>(null)
+
+marked.setOptions({
+  breaks: true,
+  gfm: true
+})
+
+onMounted(() => {
+  const savedMessages = mainStore.getGlobalConversation
+  messages.value = Array.isArray(savedMessages) ? savedMessages : []
+  nextTick(() => scrollToBottom())
+})
+
+watch(messages, (newMessages) => {
+  mainStore.setGlobalConversation({ global: newMessages })
+}, { deep: true })
+
+function renderMarkdown(text: string): string {
+  return marked(text) as string
+}
 
 async function sendMessage() {
   if (!inputText.value.trim() || isBotReplying.value) return
@@ -54,7 +74,7 @@ async function sendMessage() {
     scrollToBottom()
   });
 
-  updateSelectedElementText(botReply)
+  //updateSelectedElementText(botReply)
   isBotReplying.value = false
 }
 
@@ -91,7 +111,8 @@ function updateSelectedElementText(newText: string) {
 .dialog-panel {
   display: flex;
   flex-direction: column;
-  height: 85vh;
+  height: calc(100vh - 105px);
+  max-height: 100vh;
   overflow: hidden;
 }
 
@@ -99,7 +120,7 @@ function updateSelectedElementText(newText: string) {
   flex: 1;
   padding: 10px;
   overflow-y: auto;
-  background: #f9f9f9;
+  background: #fff;
   font-size: 14px;
 }
 
@@ -107,20 +128,25 @@ function updateSelectedElementText(newText: string) {
   margin: 6px 0;
   padding: 8px 12px;
   border-radius: 12px;
-  max-width: 80%;
+  max-width: fit-content;
   word-wrap: break-word;
+  display: inline-block;
 }
 
 .chat-bubble.user {
-  align-self: flex-end;
   background-color: #d1eaff;
   text-align: right;
-  margin-left: auto; 
+  margin-left: auto;
+  display: block;
+  width: fit-content;
+  max-width: 80%;
 }
 
 .chat-bubble.bot {
-  align-self: flex-start;
   background-color: #eee;
+  display: block;
+  width: fit-content;
+  max-width: 80%;
 }
 
 .chat-input {
@@ -147,5 +173,57 @@ function updateSelectedElementText(newText: string) {
   cursor: pointer;
   white-space: nowrap;
   flex-shrink: 0;
+}
+
+.chat-bubble.bot :deep(p) {
+  margin: 0.5em 0;
+}
+
+.chat-bubble.bot :deep(code) {
+  background-color: #f4f4f4;
+  padding: 2px 4px;
+  border-radius: 3px;
+  font-family: monospace;
+}
+
+.chat-bubble.bot :deep(pre) {
+  background-color: #f4f4f4;
+  padding: 8px;
+  border-radius: 4px;
+  overflow-x: auto;
+}
+
+.chat-bubble.bot :deep(pre code) {
+  background-color: transparent;
+  padding: 0;
+}
+
+.chat-bubble.bot :deep(ul),
+.chat-bubble.bot :deep(ol) {
+  margin: 0.5em 0;
+  padding-left: 1.5em;
+}
+
+.chat-bubble.bot :deep(blockquote) {
+  border-left: 3px solid #ddd;
+  padding-left: 10px;
+  margin: 0.5em 0;
+  color: #666;
+}
+
+.chat-bubble.bot :deep(a) {
+  color: #3b82f6;
+  text-decoration: none;
+}
+
+.chat-bubble.bot :deep(a:hover) {
+  text-decoration: underline;
+}
+
+.chat-bubble.bot :deep(h1),
+.chat-bubble.bot :deep(h2),
+.chat-bubble.bot :deep(h3) {
+  margin: 0.8em 0 0.4em 0;
+  font-weight: bold;
 }
 </style>
