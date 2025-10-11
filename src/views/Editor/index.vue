@@ -18,7 +18,7 @@
       <Toolbar 
         class="layout-content-right" 
         v-model:width="toolbarWidth"
-        :style="{ width: `${toolbarWidth}px` }"
+        :style="{ width: `${toolbarWidth}px`, minWidth: '300px'}"
       />
     </div>
   </div>
@@ -75,7 +75,7 @@ const closeExportDialog = () => mainStore.setDialogForExport('')
 const closeAIPPTDialog = () => mainStore.setAIPPTDialogState(false)
 
 const remarkHeight = ref(40)
-const toolbarWidth = ref(260)
+const toolbarWidth = ref(300)
 const thumbnailsWidth = ref(160)
 
 useGlobalHotkey()
