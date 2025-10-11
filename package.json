@@ -12,6 +12,7 @@
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
     "prepare": "husky install",
     "electron-start": "npm-run-all --parallel electron-only dev",
+    "electron-start-windows": "chcp 65001 > nul && npm-run-all --parallel electron-only dev",
     "electron-only": "electron .",
     "electron-build": "npm run build && node build.js"
   },
