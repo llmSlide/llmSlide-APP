@@ -5,7 +5,7 @@ import fs from 'fs-extra'
 import path from 'path'
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig (({ command }) => ({
   build: {
     rollupOptions: {
       external: [
@@ -35,7 +35,7 @@ export default defineConfig({
       }
     }
   ],
-  publicDir: false,
+  publicDir: command === "serve" ? "public" : false,
   server: {
     host: '127.0.0.1',
     port: 1450,
@@ -55,4 +55,4 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
   }
-})
+}));
